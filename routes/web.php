@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Lecciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -16,7 +17,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('home');
+    $lecciones = Lecciones::with('detalles_lecciones')->get();
+    // $lecciones = DB::table('lecciones')->join('detalles_lecicones', 'detalles_lecicones.leccion_id', 'lecciones.id')->get();
+    return view('home', compact('lecciones'));
 });
 
 Route::get('/get-sliders', function (Request $request) {
@@ -36,13 +39,18 @@ Route::post('/add-leccion-detalles', function (Request $request) {
     $image = $request->file('img');
     $name = $image->getClientOriginalName();
     $name = date('Y-m-d_h_i_s') . '-' . $name;
-    $image->move(public_path('img/productos/'), $name);
+    $image->move(public_path('img/'), $name);
     DB::table('detalles_lecciones')->insert([
         'titulo' => $datos->title,
         'descripcion' => $datos->desc,
         'leccion_id' => $request->leccion_id,
-        'img' => $name
+        'img' => $name,
+        'posicion' => $datos->posicion
     ]);
 
-    return response()->json(true, 200);
+    $detalle = DB::table('detalles_lecciones')
+    ->latest('id')
+    ->first();
+
+    return response()->json($detalle, 200);
 });
