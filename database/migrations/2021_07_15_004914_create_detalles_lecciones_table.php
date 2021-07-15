@@ -15,6 +15,11 @@ class CreateDetallesLeccionesTable extends Migration
     {
         Schema::create('detalles_lecciones', function (Blueprint $table) {
             $table->id();
+            $table->string('titulo');
+            $table->string('descripcion');
+
+            $table->unsignedBigInteger('leccion_id');
+            $table->foreign('leccion_id', 'leccion_id')->references('id')->on('lecciones');
             $table->timestamps();
         });
     }
