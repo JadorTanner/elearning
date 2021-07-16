@@ -49,20 +49,20 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <h3>
-                            {{$leccion->title}}
+                            {{ $leccion->title }}
                         </h3>
                     </div>
                     <div class="col-sm-12">
-                        <div class="row detalles-leccion" data-id="{{$leccion->id}}">
+                        <div class="row detalles-leccion" data-id="{{ $leccion->id }}">
                             @foreach ($leccion->detalles_lecciones as $detalle)
                                 <div class="card col-sm-3">
-                                    <img src="{{asset('img/'.$detalle->img)}}" alt="" class="card-img-top h-100">
-                                    <div class="card-footer" style="text-align: {{$detalle->posicion}}">
+                                    <img src="{{ asset('img/' . $detalle->img) }}" alt="" class="card-img-top h-100">
+                                    <div class="card-footer" style="text-align: {{ $detalle->posicion }}">
                                         <h5>
-                                            {{$detalle->titulo}}
+                                            {{ $detalle->titulo }}
                                         </h5>
                                         <h6>
-                                            {{$detalle->descripcion}}
+                                            {{ $detalle->descripcion }}
                                         </h6>
                                     </div>
                                 </div>
@@ -121,6 +121,78 @@
         })
 
         $(document).on('click', '#agregar-detalle', function() {
+            let formData = new FormData()
+            formData.append('_token', '{{ csrf_token() }}')
+            formData.append('title', $("#title").val())
+
+            $(".detalles-slider-wrapper").each(function(index, element) {
+                let inputFile = document.querySelector(
+                    `input[name="file"][data-id="${index + 1}"]`)
+
+                formData.append('sliders_data[]', JSON.stringify({
+                    title: $(
+                        `.detalles-slider-wrapper[data-id=${(index + 1)}] input[name=title]`
+                    ).val(),
+                    desc: $(
+                            `.detalles-slider-wrapper[data-id=${(index + 1)}] input[name=desc]`
+                        )
+                        .val(),
+                    posicion: $(
+                            `.detalles-slider-wrapper[data-id=${(index + 1)}] select[name=posicion]`
+                        )
+                        .val(),
+                    leccion_id: 1
+                }))
+                let file = inputFile.files[0] !== undefined ? inputFile.files[0] : new Blob()
+                
+                formData.append('imgs[]', file)
+
+            });
+
+
+            $.ajax({
+                url: '/add-leccion',
+                method: 'POST',
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function(leccion) {
+                    let sliders = ""
+                    $.each(leccion.sliders, function(index, slider) {
+                        slider += `
+                                    <div class="card col-sm-3">
+                                        <img src="/img/${slider.img}" alt="" class="card-img-top h-100">
+                                        <div class="card-footer" style="text-align: ${slider.posicion}">
+                                            <h5>
+                                                ${slider.titulo}
+                                            </h5>
+                                            <h6>
+                                                ${slider.descripcion}
+                                            </h6>
+                                        </div>
+                                    </div>
+                                `
+                    })
+
+                    $("#lecciones").append(`
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <h3>
+                                ${leccion.title}
+                            </h3>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="row detalles-leccion" data-id="${leccion.id}">
+                                ${sliders}
+                            </div>
+                        </div>
+                    </div>
+                    `)
+                }
+            })
+        })
+
+        $(document).on('click', '#agregar-detall', function() {
             $.ajax({
                 url: '/add-leccion',
                 method: 'POST',
@@ -144,15 +216,15 @@
                     </div>
                     `)
 
+                    let formData = new FormData()
+                    formData.append('_token', '{{ csrf_token() }}')
+                    formData.append('leccion_id', leccion.id)
 
                     $(".detalles-slider-wrapper").each(function(index, element) {
                         let inputFile = document.querySelector(
                             `input[name="file"][data-id="${index + 1}"]`)
 
-                        let formData = new FormData()
-                        formData.append('_token', '{{ csrf_token() }}')
-                        formData.append('leccion_id', leccion.id)
-                        formData.append('slider_data', JSON.stringify({
+                        formData.append('sliders_data[]', JSON.stringify({
                             title: $(
                                 `.detalles-slider-wrapper[data-id=${(index + 1)}] input[name=title]`
                             ).val(),
@@ -166,16 +238,17 @@
                                 .val(),
                         }))
 
-                        formData.append('img', inputFile.files[0])
+                        formData.append('imgs[]', inputFile.files[0])
 
-                        $.ajax({
-                            url: '/add-leccion-detalles',
-                            method: 'POST',
-                            processData: false,
-                            contentType: false,
-                            data: formData,
-                            success: function(detalle) {
-                                $(".detalles-leccion[data-id="+leccion.id+"]").append(`
+                    });
+                    $.ajax({
+                        url: '/add-leccion-detalles',
+                        method: 'POST',
+                        processData: false,
+                        contentType: false,
+                        data: formData,
+                        success: function(detalle) {
+                            $(".detalles-leccion[data-id=" + leccion.id + "]").append(`
                                     <div class="card col-sm-3">
                                         <img src="/img/${detalle.img}" alt="" class="card-img-top h-100">
                                         <div class="card-footer" style="text-align: ${detalle.posicion}">
@@ -188,9 +261,8 @@
                                         </div>
                                     </div>
                                 `)
-                            }
-                        })
-                    });
+                        }
+                    })
                 }
             })
         })

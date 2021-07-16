@@ -5,17 +5,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
 Route::get('/', function () {
     $lecciones = Lecciones::with('detalles_lecciones')->get();
     // $lecciones = DB::table('lecciones')->join('detalles_lecicones', 'detalles_lecicones.leccion_id', 'lecciones.id')->get();
@@ -27,6 +16,36 @@ Route::get('/get-sliders', function (Request $request) {
 });
 
 Route::post('/add-leccion', function (Request $request) {
+    $response = [];
+    foreach ($request->file('imgs') as $index => $file) {
+        $name = "";
+        if ($file->extension()) {
+            $name = $file->getClientOriginalName();
+            $name = date('Y-m-d_h_i_s') . '-' . $name;
+            $file->move(public_path('img/'), $name);
+        }
+        
+        $sliderData = json_decode($request->sliders_data[$index]);
+
+        DB::table('detalles_lecciones')->insert([
+            'titulo' => $sliderData->title,
+            'descripcion' => $sliderData->desc,
+            'leccion_id' => $sliderData->leccion_id,
+            'img' => $name,
+            'posicion' => $sliderData->posicion
+        ]);
+
+        $response[] = DB::table('detalles_lecciones')
+            ->latest('id')
+            ->first();
+    }
+    DB::table('lecciones')->insert([
+        'title' => $request->title
+    ]);
+    return response()->json($response, 200);
+    return response()->json(DB::table('lecciones')->latest('id')->first(), 200);
+});
+Route::post('/add-lecciones', function (Request $request) {
     DB::table('lecciones')->insert([
         'title' => $request->title
     ]);
@@ -34,7 +53,7 @@ Route::post('/add-leccion', function (Request $request) {
 });
 
 Route::post('/add-leccion-detalles', function (Request $request) {
-    
+    return response()->json($request->all(), 200);
     $datos = json_decode($request->slider_data);
     $image = $request->file('img');
     $name = $image->getClientOriginalName();
@@ -49,8 +68,8 @@ Route::post('/add-leccion-detalles', function (Request $request) {
     ]);
 
     $detalle = DB::table('detalles_lecciones')
-    ->latest('id')
-    ->first();
+        ->latest('id')
+        ->first();
 
     return response()->json($detalle, 200);
 });
