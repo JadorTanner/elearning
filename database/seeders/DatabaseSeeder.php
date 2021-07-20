@@ -37,8 +37,8 @@ class DatabaseSeeder extends Seeder
         for ($i=1; $i < 10; $i++) {
             DB::table('detalles_lecciones')
             ->insert([
-                'titulo' => "leccion $i",
-                'descripcion' => "leccion numero $i",
+                'titulo' => "detalle $i",
+                'descripcion' => "detalle numero $i",
                 'leccion_id' => random_int(1, 10),
                 'posicion' => $posiciones[random_int(0,2)],
                 'pk_tipo' => random_int(1,3)
