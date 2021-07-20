@@ -143,6 +143,8 @@
                         .val(),
                     leccion_id: 1
                 }))
+
+                //si tiene archivo lo guarda en file, si no crea un file vacío
                 let file = inputFile.files[0] !== undefined ? inputFile.files[0] : new Blob()
                 
                 formData.append('imgs[]', file)

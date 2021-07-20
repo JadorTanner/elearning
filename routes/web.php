@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\DetallesLecciones;
 use App\Models\Lecciones;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,22 +12,34 @@ Route::get('/', function () {
     return view('home', compact('lecciones'));
 });
 
+Route::get('/lecciones', function () {
+    $tipos = [1, 2, 3];
+    $lecciones = Lecciones::with('detalles_lecciones')->get();
+    return view('lecciones', compact('lecciones', 'tipos'));
+});
+
 Route::get('/get-sliders', function (Request $request) {
     return view('sliders', ['cantidad' => $request->cantidad]);
 });
 
 Route::post('/add-leccion', function (Request $request) {
     $response = [];
+
+    //foreach de las imagenes
     foreach ($request->file('imgs') as $index => $file) {
         $name = "";
+        //si tiene extension, es un archivo valido y no vacio
         if ($file->extension()) {
+            //guarda en carpeta y cambia la variable nombre
             $name = $file->getClientOriginalName();
             $name = date('Y-m-d_h_i_s') . '-' . $name;
             $file->move(public_path('img/'), $name);
         }
-        
+
+        //parsea los datos
         $sliderData = json_decode($request->sliders_data[$index]);
 
+        //guarda los datos en la tabla
         DB::table('detalles_lecciones')->insert([
             'titulo' => $sliderData->title,
             'descripcion' => $sliderData->desc,
@@ -35,15 +48,17 @@ Route::post('/add-leccion', function (Request $request) {
             'posicion' => $sliderData->posicion
         ]);
 
+        //agrega a un array el slider agregado
         $response[] = DB::table('detalles_lecciones')
             ->latest('id')
             ->first();
     }
+
     DB::table('lecciones')->insert([
         'title' => $request->title
     ]);
+
     return response()->json($response, 200);
-    return response()->json(DB::table('lecciones')->latest('id')->first(), 200);
 });
 Route::post('/add-lecciones', function (Request $request) {
     DB::table('lecciones')->insert([

@@ -12,4 +12,7 @@ class Lecciones extends Model
     {
         return $this->hasMany(DetallesLecciones::class, 'leccion_id', 'id');
     }
+    // public function detalles(){
+    //     return $this->hasMany(DetallesLecciones::class, 'leccion_id', 'id');
+    // }
 }
