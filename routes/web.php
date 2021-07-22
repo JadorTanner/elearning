@@ -18,10 +18,31 @@ Route::get('/lecciones', function () {
     return view('lecciones', compact('lecciones', 'tipos'));
 });
 
+
+
+Route::get('/sliders-v2', function () {
+    return view('sliders_v2',['items'=>[
+        1, 2,3,4,5,6,7,8,9
+    ]]);
+});
+
+
+
 Route::get('/get-sliders', function (Request $request) {
     return view('sliders', ['cantidad' => $request->cantidad]);
 });
-
+function transparent_background($filename, $color)
+{
+    $img = imagecreatefromjpeg($filename); //or whatever loading function you need
+    $colors = explode(',', $color);
+    $remove = imagecolorallocate($img, $colors[0], $colors[1], $colors[2]);
+    imagecolortransparent($img, $remove);
+    imagepng($img, public_path('img/') . replace_extension($filename->getClientOriginalName(), 'png'));
+}
+function replace_extension($filename, $new_extension) {
+    $info = pathinfo($filename);
+    return $info['filename'] . '.' . $new_extension;
+}
 Route::post('/add-leccion', function (Request $request) {
     $response = [];
 
