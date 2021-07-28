@@ -81,6 +81,9 @@ Route::post('/add-leccion', function (Request $request) {
 
     return response()->json($response, 200);
 });
+Route::get('/tests', function () {
+    return view('tests');
+});
 Route::post('/add-lecciones', function (Request $request) {
     DB::table('lecciones')->insert([
         'title' => $request->title
