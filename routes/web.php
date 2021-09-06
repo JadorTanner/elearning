@@ -2,9 +2,11 @@
 
 use App\Models\DetallesLecciones;
 use App\Models\Lecciones;
+use App\Models\UsersImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Maatwebsite\Excel\Facades\Excel;
 
 Route::get('/', function () {
     $lecciones = Lecciones::with('detalles_lecciones')->get();
@@ -26,7 +28,13 @@ Route::get('/sliders-v2', function () {
     ]]);
 });
 
-
+Route::get('/archivos', function () {
+    return view('imports');
+});
+Route::post('/subir-archivo', function(Request $request){
+    $import = Excel::import(new UsersImport, $request->file('archivo'));
+    dd($import);
+})->name('subir.archivo');
 
 Route::get('/get-sliders', function (Request $request) {
     return view('sliders', ['cantidad' => $request->cantidad]);

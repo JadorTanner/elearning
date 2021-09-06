@@ -27,12 +27,60 @@ $items = [1, 2, 3, 4, 5, 6];
             height: 300px;
             border: 1px solid black;
         }
+        .block{
+            width: 200px;
+            height: 200px;
+            background-color: rgb(158, 158, 158);
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        .absolute-block{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            background-color: red;
+        }
+        .block .absolute-block{
+            position: relative;
+        }
+
 
     </style>
 </head>
 
 <body>
-    <ul id="items">
+    <div class="block" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    @foreach ($items as $item)
+        <div class="block absolute-block" draggable="true" data-id="block-{{$item}}" ondragstart="dragStart(event)"></div>
+    @endforeach
+
+    <script>
+        let block = document.querySelector('.absolute-block')
+
+        function allowDrop(ev){
+            ev.preventDefault()
+        }
+        function dragStart(ev){
+            ev.dataTransfer.setData("block", ev.target.dataset.id)
+        }
+        function drop(ev){
+            ev.preventDefault();
+            let data = ev.dataTransfer.getData("block")
+            let block = document.querySelector('.block[data-id="'+data+'"]')
+            console.log(block)
+            ev.target.appendChild(block)
+        }
+        // document.addEventListener('mousemove', function(e){
+        //     block.style.top = e.clientY + "px"
+        //     block.style.left = e.clientX + "px"
+        // })
+    </script>
+    {{-- <ul id="items">
         @foreach ($items as $item)
             <li class="item" data-id="{{ $item }}">item nro: {{ $item }}.</li>
         @endforeach
@@ -81,7 +129,7 @@ $items = [1, 2, 3, 4, 5, 6];
             ctx.stroke();
             ctx.closePath();
         }
-    </script>
+    </script> --}}
 </body>
 
 </html>

@@ -35,7 +35,7 @@
             </div>
         </div>
         <div class="card-body">
-            <div class="row" id="sliders-container"></div>
+            <form class="row" id="sliders-container"></form>
         </div>
         <div class="card-footer">
             <button class="btn btn-primary" id="agregar-detalle">
@@ -120,7 +120,10 @@
             $(`p.${target}[data-id=${id}]`).html(value)
         })
 
-        $(document).on('click', '#agregar-detalle', function() {
+        $(document).on('click', '#agregar-detalle', function(e) {
+            e.preventDefault();
+            console.log($("#sliders-container").serialize())
+            return false
             let formData = new FormData()
             formData.append('_token', '{{ csrf_token() }}')
             formData.append('title', $("#title").val())
